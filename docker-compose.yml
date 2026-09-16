@@ -1,0 +1,13 @@
+services:
+  mapper:
+    build: .
+    image: mapper-scrapy:latest
+    ports:
+      - "8080:8080"
+    # Chrome headless precisa de /dev/shm maior que o default (64MB)
+    shm_size: "2gb"
+    restart: unless-stopped
+    volumes:
+      - ./tmp:/app/tmp
+    environment:
+      CHROME_PATH: /usr/bin/chromium

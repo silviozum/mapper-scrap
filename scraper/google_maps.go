@@ -79,17 +79,21 @@ func (s *GoogleMaps) Search(ctx context.Context, city, segment string, limit int
 	rootCtx, rootCancel := context.WithTimeout(parent, timeout)
 	defer rootCancel()
 
-	allocCtx, allocCancel := chromedp.NewExecAllocator(rootCtx,
-		append(chromedp.DefaultExecAllocatorOptions[:],
-			chromedp.Flag("headless", true),
-			chromedp.Flag("disable-gpu", true),
-			chromedp.Flag("no-sandbox", true),
-			chromedp.Flag("disable-blink-features", "AutomationControlled"),
-			chromedp.Flag("lang", "pt-BR"),
-			chromedp.WindowSize(1440, 900),
-			chromedp.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"),
-		)...,
+	opts := append(chromedp.DefaultExecAllocatorOptions[:],
+		chromedp.Flag("headless", true),
+		chromedp.Flag("disable-gpu", true),
+		chromedp.Flag("no-sandbox", true),
+		chromedp.Flag("disable-dev-shm-usage", true),
+		chromedp.Flag("disable-blink-features", "AutomationControlled"),
+		chromedp.Flag("lang", "pt-BR"),
+		chromedp.WindowSize(1440, 900),
+		chromedp.UserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"),
 	)
+	if chromePath := os.Getenv("CHROME_PATH"); chromePath != "" {
+		opts = append(opts, chromedp.ExecPath(chromePath))
+	}
+
+	allocCtx, allocCancel := chromedp.NewExecAllocator(rootCtx, opts...)
 	defer allocCancel()
 
 	// First context owns the browser process — keep it alive for worker tabs.

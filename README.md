@@ -16,10 +16,12 @@ Serviço HTTP em Go que busca estabelecimentos no Google Maps a partir de uma **
 
 ## Requisitos
 
+**Com Docker:** Docker Engine + Compose (Chrome já vem na imagem).
+
+**Sem Docker:**
 - [Go](https://go.dev/dl/) **1.22+** (o módulo declara `go 1.27.1`)
 - Google Chrome / Chromium instalado (usado pelo [chromedp](https://github.com/chromedp/chromedp) em modo headless)
 - macOS, Linux ou Windows
-
 ## Instalação
 
 ```bash
@@ -30,7 +32,19 @@ go mod download
 
 ## Como rodar
 
-### Opção 1 — direto com Go
+### Opção 1 — Docker (recomendado em VPS)
+
+Requisitos: [Docker](https://docs.docker.com/get-docker/) + Docker Compose.
+
+```bash
+docker compose up -d --build
+```
+
+O servidor sobe em `http://localhost:8080`. Logs: `docker compose logs -f`. Parar: `docker compose down`.
+
+A imagem já inclui Chromium (chromedp). O compose usa `shm_size: 2gb` para o Chrome headless.
+
+### Opção 2 — direto com Go
 
 ```bash
 go run .
@@ -38,14 +52,14 @@ go run .
 
 O servidor sobe em `http://localhost:8080`.
 
-### Opção 2 — build + binário
+### Opção 3 — build + binário
 
 ```bash
 go build -o mapper .
 ./mapper
 ```
 
-### Opção 3 — hot reload com Air (opcional)
+### Opção 4 — hot reload com Air (opcional)
 
 Se tiver [Air](https://github.com/air-verse/air) instalado e o arquivo `.air.toml` no projeto:
 
@@ -77,6 +91,8 @@ mapperScrapy/
 ├── scraper/             # scraping Google Maps (chromedp + workers)
 ├── model/               # DTOs de request/response
 ├── docs/                # documentação da API e do scraper
+├── Dockerfile           # build multi-stage + Chromium
+├── docker-compose.yml
 ├── go.mod
 └── README.md
 ```
